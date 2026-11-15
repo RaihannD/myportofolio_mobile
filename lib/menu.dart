@@ -8,9 +8,11 @@ class MyHomePage extends StatelessWidget {
   final String kelas = "PBP A";
 
   final List<ItemHomepage> items = [
-    ItemHomepage("Lihat Proyek", Icons.folder),
-    ItemHomepage("Tambah Proyek", Icons.add_circle),
-    ItemHomepage("Logout", Icons.logout),
+    ItemHomepage("Lihat Proyek", Icons.folder, Colors.green),
+    ItemHomepage("Lihat Pengalaman", Icons.work_history, Colors.teal),
+    ItemHomepage("Tambah Pengalaman", Icons.note_add, Colors.purple),
+    ItemHomepage("Tambah Proyek", Icons.add_circle, Colors.orange),
+    ItemHomepage("Logout", Icons.logout, Colors.red),
   ];
 
 
@@ -21,7 +23,7 @@ class MyHomePage extends StatelessWidget {
       // AppBar menampilkan bar bagian atas halaman aplikasi.
       appBar: AppBar(
         title: const Text(
-          'MyPortfolio',
+          'MyPortofolio',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -54,7 +56,7 @@ class MyHomePage extends StatelessWidget {
                   const Padding(
                     padding: EdgeInsets.only(top: 16.0),
                     child: Text(
-                      'Selamat datang di MyPortfolio Mobile!',
+                      'Selamat datang di MyPortofolio Mobile!',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18.0,
@@ -120,8 +122,9 @@ class InfoCard extends StatelessWidget {
 class ItemHomepage {
   final String name;
   final IconData icon;
+  final Color color;
 
-  ItemHomepage(this.name, this.icon);
+  ItemHomepage(this.name, this.icon, this.color);
 }
 
 class ItemCard extends StatelessWidget {
@@ -133,7 +136,7 @@ class ItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       // Menggunakan warna sekunder dari skema tema aplikasi.
-      color: Theme.of(context).colorScheme.secondary,
+      color: item.color,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         // Aksi ketika kartu ditekan oleh pengguna.
