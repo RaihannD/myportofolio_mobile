@@ -18,7 +18,12 @@ myportofolio_mobile/
 ├── ios/                     # Konfigurasi runner iOS
 ├── lib/
 │   ├── main.dart            # Bootstrap aplikasi, tema, dan MaterialApp
-│   └── menu.dart            # MyHomePage, InfoCard, ItemHomepage, dan ItemCard
+│   ├── screens/
+│   │   ├── menu.dart        # MyHomePage, InfoCard, dan ItemHomepage
+│   │   └── project_form.dart # Form tambah proyek
+│   └── widgets/
+│       ├── left_drawer.dart # Drawer navigasi
+│       └── project_card.dart # ItemCard untuk menu portofolio
 ├── linux/                   # Konfigurasi runner Linux
 ├── macos/                   # Konfigurasi runner macOS
 ├── test/                    # Pengujian widget
@@ -81,6 +86,13 @@ Perintah ini seharusnya berakhir dengan `No issues found!`. Jika perintah Flutte
 - Menambahkan lihat pengalaman dan tambah pengalaman. Ketika ditekan, menu menampilkan `SnackBar` sesuai nama tindakan.
 - Menambahkan instruksi setup dan dokumentasi penggunaan AI pada README.
 
+### Tutorial 09 — Navigation, Layouts, Forms, and Input Elements
+
+- Menambahkan drawer untuk berpindah antara halaman utama dan form proyek.
+- Menghubungkan menu `Tambah Proyek` ke `ProjectFormPage` menggunakan `Navigator` dan `MaterialPageRoute`.
+- Menyempurnakan validasi form, kategori proyek, input teknologi, dan tautan opsional.
+- Merapikan struktur berkas dengan memisahkan halaman di `lib/screens/` dan widget di `lib/widgets/`.
+
 ## Pertanyaan Reflektif
 
 ### Tugas 7
@@ -93,7 +105,7 @@ Pada proyek ini, pohon dimulai dari `MyApp`, yang mengembalikan `MaterialApp`. `
 
 #### 2. Sebutkan semua *widget* yang kamu gunakan dalam proyek ini dan jelaskan fungsinya masing-masing!
 
-Widget yang digunakan langsung dalam `main.dart` dan `menu.dart` adalah:
+Widget yang digunakan dalam `main.dart`, `screens/menu.dart`, `screens/project_form.dart`, dan direktori `widgets/` adalah:
 
 - `MyApp`: widget buatan sendiri yang menjadi titik awal UI aplikasi.
 - `MaterialApp`: menyediakan struktur aplikasi bergaya Material, tema, judul, dan halaman awal.
