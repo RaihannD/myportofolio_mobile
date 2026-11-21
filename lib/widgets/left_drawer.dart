@@ -5,10 +5,12 @@ class LeftDrawer extends StatelessWidget {
     super.key,
     required this.onHomeTap,
     required this.onAddProjectTap,
+    required this.onAddExperienceTap,
   });
 
   final VoidCallback onHomeTap;
   final VoidCallback onAddProjectTap;
+  final VoidCallback onAddExperienceTap;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +58,14 @@ class LeftDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               onAddProjectTap();
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.work_history_outlined),
+            title: const Text('Add Experience'),
+            onTap: () {
+              Navigator.pop(context);
+              onAddExperienceTap();
             },
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
@@ -46,6 +47,14 @@ class MyHomePage extends StatelessWidget {
             ),
           );
         },
+        onAddExperienceTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute<void>(
+              builder: (context) => const ExperienceFormPage(),
+            ),
+          );
+        },
       ),
       // Body halaman utama dengan padding di sekelilingnya.
       body: SingleChildScrollView(
@@ -87,7 +96,9 @@ class MyHomePage extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
-                    crossAxisCount: 3,
+                    crossAxisCount: MediaQuery.sizeOf(context).width < 360
+                        ? 2
+                        : 3,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: items.map((ItemHomepage item) {

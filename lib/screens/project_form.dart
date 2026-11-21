@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
 
 class ProjectFormPage extends StatefulWidget {
   const ProjectFormPage({super.key});
@@ -58,6 +59,14 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
             context,
             MaterialPageRoute<void>(
               builder: (context) => const ProjectFormPage(),
+            ),
+          );
+        },
+        onAddExperienceTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<void>(
+              builder: (context) => const ExperienceFormPage(),
             ),
           );
         },
