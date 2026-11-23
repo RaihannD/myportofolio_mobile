@@ -6,7 +6,7 @@ Aplikasi portofolio pribadi multiplatform yang dibuat dengan Flutter dan Dart un
 
 Aplikasi saat ini menampilkan identitas pemilik dalam tiga kartu informasi, serta menu tindakan portofolio berupa kartu berikon dan berwarna berbeda. Kartu menu mencakup melihat proyek, melihat dan menambah pengalaman, menambah proyek, serta logout. Setiap kartu menampilkan `SnackBar` ketika ditekan.
 
-Versi ini berfokus pada fondasi UI Flutter dari Tutorial 08 dan Tugas 7. Kartu tindakan masih berupa prototipe interaktif: tombol menampilkan pesan, tetapi belum membuka halaman data, menyimpan proyek/pengalaman, atau mengakhiri sesi login.
+Proyek ini mengembangkan fondasi UI Flutter dari Tutorial 08 dan Tugas 7 dengan navigasi serta formulir dari Tutorial 09 dan Tugas 8. Kartu untuk melihat daftar dan logout masih menampilkan pesan `SnackBar`, formulir tambah proyek dan pengalaman memvalidasi input lalu menampilkan ringkasan dalam dialog. Data formulir belum disimpan secara permanen.
 
 > **Identitas:** Raihan Daffa Aprilianda · NPM 2506620021 · PBP B
 
@@ -20,7 +20,8 @@ myportofolio_mobile/
 │   ├── main.dart            # Bootstrap aplikasi, tema, dan MaterialApp
 │   ├── screens/
 │   │   ├── menu.dart        # MyHomePage, InfoCard, dan ItemHomepage
-│   │   └── project_form.dart # Form tambah proyek
+│   │   ├── project_form.dart # Form tambah proyek
+│   │   └── experience_form.dart # Form tambah pengalaman
 │   └── widgets/
 │       ├── left_drawer.dart # Drawer navigasi
 │       └── project_card.dart # ItemCard untuk menu portofolio
@@ -93,6 +94,15 @@ Perintah ini seharusnya berakhir dengan `No issues found!`. Jika perintah Flutte
 - Menyempurnakan validasi form, kategori proyek, input teknologi, dan tautan opsional.
 - Merapikan struktur berkas dengan memisahkan halaman di `lib/screens/` dan widget di `lib/widgets/`.
 
+### Tugas 8
+
+- Membuat `ExperienceFormPage` dengan `StatefulWidget`, `Form`, dan `GlobalKey<FormState>`.
+- Menambahkan input nama, deskripsi, kategori pengalaman, dan URL thumbnail opsional sesuai model `Experience`.
+- Menambahkan pilihan status pengalaman yang masih berlangsung serta `showDatePicker()` untuk tanggal berakhir.
+- Memvalidasi isian wajib, batas panjang nama dan URL, format URL, serta kewajiban memilih tanggal jika pengalaman sudah berakhir.
+- Menghubungkan kartu aksi dan drawer ke form pengalaman, sambil mempertahankan navigasi **Home** dan **Add Project**.
+- Menampilkan ringkasan seluruh isian dalam dialog setelah validasi berhasil.
+
 ## Pertanyaan Reflektif
 
 ### Tugas 7
@@ -152,6 +162,32 @@ Metode `build(BuildContext context)` menerima context yang terkait dengan widget
 *Hot reload* mengirim perubahan kode Dart ke aplikasi yang sedang berjalan dalam mode debug, lalu membangun ulang widget tree sambil mempertahankan state aplikasi. Karena `main()` dan `initState()` tidak dijalankan ulang, perubahan UI biasa dapat terlihat cepat tanpa mengulang alur aplikasi.
 
 *Hot restart* memulai ulang aplikasi Flutter dari `main()` dan menghapus state yang sedang berjalan, tetapi sesi debug tetap aktif. Gunakan hot restart jika perubahan pada `main()`, `initState()`, atau inisialisasi state global/static tidak tercermin setelah hot reload, atau jika state lama perlu dibuang. *Full restart* menghentikan dan menjalankan kembali aplikasi/target, ini diperlukan untuk menerapkan perubahan kode native platform seperti Kotlin/Java di Android atau Swift/Objective-C di iOS. Semua mekanisme reload ini digunakan saat aplikasi berjalan dalam mode debug.
+
+### Tugas 8
+
+#### 1. Jelaskan perbedaan antara `Navigator.push()`, `Navigator.pushReplacement()`, dan `Navigator.pop()`. Metode apa yang digunakan untuk membuka formulir dari kartu aksi? Jelaskan juga bagaimana opsi **Home** di drawer membawa pengguna kembali ke halaman utama.
+
+`Navigator.push()` menambahkan halaman baru di atas halaman saat ini pada *navigation stack*. Pengguna dapat kembali ke halaman sebelumnya dengan tombol kembali. `Navigator.pushReplacement()` mengganti halaman teratas dengan halaman baru, sehingga halaman yang diganti tidak lagi menjadi tujuan tombol kembali. `Navigator.pop()` menghapus halaman teratas dan menampilkan halaman sebelumnya. Pada proyek ini, kartu aksi `Tambah Pengalaman` membuka `ExperienceFormPage` memakai `Navigator.push()` bersama `MaterialPageRoute`, sehingga tombol kembali bawaan dapat kembali ke halaman utama.
+
+Opsi **Home** pada drawer juga menutup drawer dengan `Navigator.pop()`. Setelah itu, callback drawer pada halaman formulir memanggil `Navigator.pop()` sekali lagi untuk menutup formulir. Halaman utama yang berada di bawah formulir kemudian tampil kembali. Jika **Home** ditekan saat sudah berada di halaman utama, callback menggunakan `Navigator.pushReplacement()` untuk menampilkan halaman utama sebagai halaman teratas.
+
+#### 2. Bagaimana susunan `Scaffold`, `AppBar`, dan `Drawer` membantu menjaga struktur halaman tetap konsisten? Berikan satu contoh penggunaan warna tema portofolio di lebih dari satu halaman.
+
+`Scaffold` menyediakan kerangka halaman Material yang konsisten: `AppBar` ditempatkan di bagian atas, `body` menampung isi halaman, dan `drawer` menyediakan panel navigasi samping. Halaman utama, form proyek, dan form pengalaman memakai struktur ini, sementara `LeftDrawer` digunakan kembali agar pilihan navigasinya tetap sama.
+
+Tema aplikasi dibuat pada `MaterialApp` dengan `ColorScheme.fromSeed`. Sebagai contoh, `MyHomePage`, `ProjectFormPage`, dan `ExperienceFormPage` mengambil `Theme.of(context).colorScheme.primary` sebagai warna latar `AppBar`. Tombol Simpan pada kedua form juga memakai warna utama dari tema, sehingga warna tetap konsisten tanpa mendefinisikan warna berbeda pada setiap halaman.
+
+#### 3. Mengapa tata letak tersebut dipilih untuk formulir? Jelaskan peran widget pengatur jarak dan widget penggulir ketika ruang layar terbatas.
+
+Formulir disusun dalam `Column` karena urutan input—nama, deskripsi, kategori, thumbnail, status, lalu tanggal akhir—lebih mudah diikuti secara vertikal. Setiap kolom input diberi `Padding` agar memiliki jarak dari tepi layar dan dari kolom lain. `SizedBox` memberi jarak tetap di antara bagian-bagian ringkasan dialog.
+
+`SingleChildScrollView` membungkus isi form agar kolom dan tombol Simpan dapat digulir ketika tinggi layar terbatas atau papan ketik mengurangi ruang yang tersedia. `Scaffold` menyesuaikan area body saat papan ketik tampil, sedangkan scroll view memungkinkan pengguna menggulir ke input atau tombol yang tertutup. Grid kartu di halaman utama juga berubah menjadi dua kolom pada layar yang lebih sempit agar kartu tidak terlalu kecil.
+
+#### 4. Apa peran `GlobalKey<FormState>`, `validator`, dan `validate()` saat tombol **Simpan** ditekan? Berikan satu contoh nilai yang ditolak oleh validasi dan jelaskan mengapa memilih jenis input atau papan ketik saja belum cukup.
+
+`GlobalKey<FormState>` menghubungkan tombol Simpan dengan state dari widget `Form`, sehingga kode dapat mengakses `FormState` untuk menjalankan validasi dan menyimpan nilai input. Setiap `validator` memeriksa satu kolom dan mengembalikan pesan kesalahan jika nilainya tidak memenuhi aturan. Saat Simpan ditekan, `validate()` menjalankan semua validator. Jika ada yang gagal, form menampilkan pesan di kolom terkait dan dialog ringkasan tidak dibuka. Jika semuanya valid, kode memanggil `save()` lalu menampilkan ringkasan input di `AlertDialog`.
+
+Contohnya, nama pengalaman yang hanya berisi spasi ditolak setelah diproses dengan `trim()`, karena kolom nama wajib memiliki isi. URL thumbnail `not-a-url` juga ditolak karena bukan URL HTTP/HTTPS yang memiliki host. Memilih `TextInputType.url` hanya menampilkan papan ketik yang lebih sesuai, pengguna masih dapat memasukkan atau menempelkan teks yang tidak valid. Karena itu, validasi tetap perlu dilakukan pada nilai aktual sebelum memproses atau menampilkan ringkasan.
 
 ## AI Disclosure
 
