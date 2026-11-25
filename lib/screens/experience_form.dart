@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
 class ExperienceFormPage extends StatefulWidget {
@@ -130,6 +131,14 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
             context,
             MaterialPageRoute<void>(
               builder: (context) => const ProjectFormPage(),
+            ),
+          );
+        },
+        onProjectsTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<void>(
+              builder: (context) => const ProjectListScreen(),
             ),
           );
         },
