@@ -1,7 +1,14 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/models/experience.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
+import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
+import 'package:myportofolio_mobile/services/api_client.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
+import 'package:provider/provider.dart';
 
 class ExperienceFormPage extends StatefulWidget {
   const ExperienceFormPage({super.key});
@@ -31,6 +38,8 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
   DateTime? _endedAt;
   bool _isOngoing = true;
   bool _dismissedIncomingSnackBar = false;
+  bool _checkedAuthentication = false;
+  bool _isSubmitting = false;
 
   @override
   void didChangeDependencies() {
@@ -43,6 +52,15 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
     });
+
+    if (!_checkedAuthentication) {
+      _checkedAuthentication = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        final isLoggedIn = await ensureLoggedIn(context);
+        if (!isLoggedIn && mounted) Navigator.pop(context);
+      });
+    }
   }
 
   @override
@@ -74,46 +92,90 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
     });
   }
 
-  String _categoryLabel(String value) => _categories[value] ?? value;
-
-  void _saveExperience() {
+  Future<void> _saveExperience() async {
     final form = _formKey.currentState;
     if (form == null || !form.validate()) return;
 
     form.save();
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Experience Saved'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Experience: $_title'),
-              const SizedBox(height: 8),
-              Text('Description: $_description'),
-              const SizedBox(height: 8),
-              Text('Category: ${_categoryLabel(_category)}'),
-              const SizedBox(height: 8),
-              Text('Thumbnail: ${_thumbnailUrl.isEmpty ? '—' : _thumbnailUrl}'),
-              const SizedBox(height: 8),
-              Text(
-                _isOngoing
-                    ? 'Status: Ongoing'
-                    : 'Ended: ${_endedAtController.text}',
-              ),
-            ],
+    if (!await ensureLoggedIn(context) || !mounted) return;
+
+    final token = context.read<AuthState>().token;
+    if (token == null) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      final experience = Experience(
+        title: _title,
+        description: _description,
+        category: _category,
+        thumbnail: _thumbnailUrl.isEmpty ? null : _thumbnailUrl,
+        endedAt: _isOngoing ? null : _endedAt,
+      );
+      await context.read<ApiClient>().createExperience(
+        experience,
+        token: token,
+      );
+      if (!mounted) return;
+
+      final openList = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Experience Saved'),
+          content: Text('"$_title" berhasil ditambahkan.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Selesai'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Lihat daftar'),
+            ),
+          ],
+        ),
+      );
+      if (openList == true && mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute<void>(builder: (_) => const ExperienceListScreen()),
+        );
+      }
+    } on ApiException catch (error) {
+      if (!mounted) return;
+      if (error.statusCode == 401) {
+        try {
+          await context.read<AuthState>().logout();
+        } catch (_) {
+          // AuthState clears the local token even when the server is unreachable.
+        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sesi berakhir. Silakan login kembali.'),
+          ),
+        );
+        await ensureLoggedIn(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Gagal menyimpan pengalaman (HTTP ${error.statusCode}).',
+            ),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Gagal menghubungi server. Periksa koneksi dan coba lagi.',
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
@@ -125,7 +187,13 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
         foregroundColor: Colors.white,
       ),
       drawer: LeftDrawer(
-        onHomeTap: () => Navigator.pop(context),
+        onHomeTap: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute<void>(builder: (_) => const MyHomePage()),
+            (_) => false,
+          );
+        },
         onAddProjectTap: () {
           Navigator.pushReplacement(
             context,
@@ -139,6 +207,14 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
             context,
             MaterialPageRoute<void>(
               builder: (context) => const ProjectListScreen(),
+            ),
+          );
+        },
+        onExperiencesTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => const ExperienceListScreen(),
             ),
           );
         },
@@ -296,9 +372,15 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: _saveExperience,
-                    icon: const Icon(Icons.save),
-                    label: const Text('Simpan'),
+                    onPressed: _isSubmitting ? null : _saveExperience,
+                    icon: _isSubmitting
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.save),
+                    label: Text(_isSubmitting ? 'Menyimpan...' : 'Simpan'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Colors.white,

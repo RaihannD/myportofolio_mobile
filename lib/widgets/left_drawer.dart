@@ -10,12 +10,14 @@ class LeftDrawer extends StatelessWidget {
     required this.onAddProjectTap,
     required this.onAddExperienceTap,
     required this.onProjectsTap,
+    required this.onExperiencesTap,
   });
 
   final VoidCallback onHomeTap;
   final VoidCallback onAddProjectTap;
   final VoidCallback onAddExperienceTap;
   final VoidCallback onProjectsTap;
+  final VoidCallback onExperiencesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,14 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.work_history_outlined),
+            title: const Text('Experiences'),
+            onTap: () {
+              Navigator.pop(context);
+              onExperiencesTap();
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Project'),
             // Navigasi ke halaman tambah proyek
@@ -80,9 +90,11 @@ class LeftDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.work_history_outlined),
             title: const Text('Add Experience'),
-            onTap: () {
+            onTap: () async {
+              final allowed = await ensureLoggedIn(context);
+              if (!context.mounted) return;
               Navigator.pop(context);
-              onAddExperienceTap();
+              if (allowed) onAddExperienceTap();
             },
           ),
           if (!isLoggedIn)

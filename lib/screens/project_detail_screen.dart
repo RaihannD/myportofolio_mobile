@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/project.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/screens/experience_list_screen.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
@@ -43,6 +44,14 @@ class ProjectDetailScreen extends StatelessWidget {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute<void>(builder: (_) => const ProjectListScreen()),
+          );
+        },
+        onExperiencesTap: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<void>(
+              builder: (_) => const ExperienceListScreen(),
+            ),
           );
         },
       ),
